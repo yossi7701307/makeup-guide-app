@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  skinType     String?   @map("skin_type")
+  undertone    String?
+  products     Product[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Product {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  category  String
+  brand     String
+  name      String
+  openedAt  DateTime? @map("opened_at")
+  paoMonths Int?      @map("pao_months")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("products")
+}
+
+model Look {
+  id               Int        @id @default(autoincrement())
+  title            String
+  occasion         String
+  estimatedMinutes Int        @map("estimated_minutes")
+  steps            LookStep[]
+
+  @@map("looks")
+}
+
+model LookStep {
+  id               Int     @id @default(autoincrement())
+  lookId           Int     @map("look_id")
+  stepOrder        Int     @map("step_order")
+  title            String
+  instruction      String
+  proTip           String? @map("pro_tip")
+  requiredCategory String? @map("required_category")
+  look             Look    @relation(fields: [lookId], references: [id], onDelete: Cascade)
+
+  @@map("look_steps")
+}
